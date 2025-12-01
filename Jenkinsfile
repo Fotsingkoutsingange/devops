@@ -12,21 +12,21 @@ pipeline {
         stage('Build') {
             steps {
                 echo "🏗 Étape de build (aucune commande spéciale)"
-                sh 'echo "Build OK"'
+                bat 'echo Build OK'
             }
         }
 
         stage('Test') {
             steps {
-                echo "🧪 Tests en cours..."
-                sh 'echo "Tous les tests sont OK"'
+                echo "🧪 Test en cours..."
+                bat 'echo Tests OK'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "🚀 Déploiement fictif réussi"
-                sh 'echo "Deploy OK"'
+                bat 'echo Deploy OK'
             }
         }
     }
@@ -36,7 +36,7 @@ pipeline {
             echo "✅ Pipeline terminé SANS ERREUR"
         }
         failure {
-            echo "❌ Pipeline échoué — mais normalement impossible ici"
+            echo "❌ Pipeline échoué"
         }
     }
 }
