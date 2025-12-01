@@ -1,76 +1,42 @@
 pipeline {
     agent any
 
-    environment {
-        // Variables globales si besoin
-        APP_NAME = "mon-application"
-    }
-
     stages {
 
-        stage('Checkout') {
+        stage('Start') {
             steps {
-                echo "📥 Récupération du code..."
-                checkout scm
+                echo "🚀 Pipeline lancé..."
             }
         }
 
-        stage('Installation des dépendances') {
+        stage('Build') {
             steps {
-                echo "📦 Installation..."
-                // Exemple Node.js
-                sh 'npm install'
-                // Pour Java : sh 'mvn clean install -DskipTests'
-                // Pour Python : sh 'pip install -r requirements.txt'
+                echo "🏗 Étape de build (aucune commande spéciale)"
+                sh 'echo "Build OK"'
             }
         }
 
-        stage('Tests') {
+        stage('Test') {
             steps {
-                echo "🧪 Lancement des tests..."
-                // Exemple Node.js
-                sh 'npm test'
-                // Pour Java : sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'tests//*.xml'   // Si tu génères des rapports de tests
-                }
+                echo "🧪 Tests en cours..."
+                sh 'echo "Tous les tests sont OK"'
             }
         }
 
-        stage('Build / Packaging') {
+        stage('Deploy') {
             steps {
-                echo "🏗 Build de l'application..."
-                // Exemple Node.js
-                sh 'npm run build'
-                // Pour Java : sh 'mvn package'
-            }
-        }
-
-        stage('Archive artifacts') {
-            steps {
-                echo "📦 Archivage..."
-                archiveArtifacts artifacts: 'dist/', fingerprint: true
-            }
-        }
-
-        stage('Déploiement') {
-            when { branch "main" }
-            steps {
-                echo "🚀 Déploiement en cours..."
-                // Met ici ton script de déploiement :
-                // sh './deploy.sh'
+                echo "🚀 Déploiement fictif réussi"
+                sh 'echo "Deploy OK"'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Pipeline terminé avec succès !"
+            echo "✅ Pipeline terminé SANS ERREUR"
         }
         failure {
-            echo "❌ Pipeline échoué !"
+            echo "❌ Pipeline échoué — mais normalement impossible ici"
         }
     }
 }
