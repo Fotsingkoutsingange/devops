@@ -1,46 +1,76 @@
 pipeline {
     agent any
 
+    environment {
+        // Variables globales si besoin
+        APP_NAME = "mon-application"
+    }
+
     stages {
-        stage('Build') {
+
+        stage('Checkout') {
             steps {
-                echo 'Aucune étape de build nécessaire pour un site statique.'
+                echo "📥 Récupération du code..."
+                checkout scm
             }
         }
 
-        stage('Test') {
+        stage('Installation des dépendances') {
             steps {
-                bat 'echo Validation HTML : TODO - Intégrez un outil comme tidy ou htmlhint'
+                echo "📦 Installation..."
+                // Exemple Node.js
+                sh 'npm install'
+                // Pour Java : sh 'mvn clean install -DskipTests'
+                // Pour Python : sh 'pip install -r requirements.txt'
             }
         }
 
-        stage('Deploy') {
+        stage('Tests') {
             steps {
-                // Transférer les fichiers HTML vers la VM Vagrant via SSH
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'Vagrant-VM',  // Nom de la config SSH définie dans Jenkins
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: '*.html',  // Fichiers à transférer depuis le workspace
-                                    remoteDirectory: '/var/www/html/',  // Répertoire cible sur la VM (Apache)
-                                    execCommand: 'sudo systemctl reload apache2'  // Recharger Apache après transfert
-                                )
-                            ]
-                        )
-                    ]
-                )
+                echo "🧪 Lancement des tests..."
+                // Exemple Node.js
+                sh 'npm test'
+                // Pour Java : sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'tests//*.xml'   // Si tu génères des rapports de tests
+                }
+            }
+        }
+
+        stage('Build / Packaging') {
+            steps {
+                echo "🏗 Build de l'application..."
+                // Exemple Node.js
+                sh 'npm run build'
+                // Pour Java : sh 'mvn package'
+            }
+        }
+
+        stage('Archive artifacts') {
+            steps {
+                echo "📦 Archivage..."
+                archiveArtifacts artifacts: 'dist/', fingerprint: true
+            }
+        }
+
+        stage('Déploiement') {
+            when { branch "main" }
+            steps {
+                echo "🚀 Déploiement en cours..."
+                // Met ici ton script de déploiement :
+                // sh './deploy.sh'
             }
         }
     }
 
     post {
         success {
-            echo 'Déploiement réussi !'
+            echo "✅ Pipeline terminé avec succès !"
         }
         failure {
-            echo 'Échec du déploiement.'
+            echo "❌ Pipeline échoué !"
         }
     }
 }
