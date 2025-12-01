@@ -2,13 +2,6 @@ pipeline {
     agent any
 
     stages {
-        // Supprimez cette étape si elle est redondante avec la déclarative
-        // stage('Checkout') {
-        //     steps {
-        //         git branch: 'main', url: 'https://github.com/Fotsingkoutsingange/devops.git'
-        //     }
-        // }
-
         stage('Build') {
             steps {
                 echo 'Aucune étape de build nécessaire pour un site statique.'
@@ -23,8 +16,21 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                bat 'copy *.html C:\\Apache24\\htdocs\\'
-                bat 'net stop Apache2.4 && net start Apache2.4'
+                // Transférer les fichiers HTML vers la VM Vagrant via SSH
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'Vagrant-VM',  // Nom de la config SSH définie dans Jenkins
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: '*.html',  // Fichiers à transférer depuis le workspace
+                                    remoteDirectory: '/var/www/html/',  // Répertoire cible sur la VM (Apache)
+                                    execCommand: 'sudo systemctl reload apache2'  // Recharger Apache après transfert
+                                )
+                            ]
+                        )
+                    ]
+                )
             }
         }
     }
